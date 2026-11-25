@@ -17,6 +17,10 @@ const GROUPS: [string, (edge: GraphEdge, other: GraphNode) => boolean][] = [
   ['Players', (edge) => edge.kind === 'performer'],
   ['Production & Engineering', (edge) => edge.kind === 'production'],
   ['Artwork & Design', (edge) => edge.kind === 'artwork'],
+  ['Northern Information', (edge) => edge.kind === 'ni'],
+  ['Releases', (edge) => edge.kind === 'record'],
+  ['Label', (edge) => edge.kind === 'imprint'],
+  ['Collaborators', (edge) => edge.kind === 'collab'],
   ['Directed & Written By', (edge) => edge.kind === 'director' || edge.kind === 'writer'],
   ['Music', (edge) => edge.kind === 'composer' || edge.kind === 'music'],
   ['Cast', (edge) => edge.kind === 'cast'],
@@ -58,7 +62,7 @@ export function DetailPanel() {
       <header className={styles.header}>
         <div>
           <div className={styles.kind} style={{ color: nodeColor(node) }}>
-            {KIND_LABEL[node.kind]}
+            {node.founder ? 'Founder' : KIND_LABEL[node.kind]}
           </div>
           <h2 id={titleId} className={styles.title}>
             {node.name}

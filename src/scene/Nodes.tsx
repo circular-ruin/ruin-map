@@ -76,7 +76,7 @@ function Node({ node, dim, active }: { node: GraphNode; dim: boolean; active: bo
         />
       </mesh>
       {/* soft halo so the brighter kinds glow against the dark */}
-      {!dim && (node.kind === 'studio' || node.kind === 'kou' || node.kind === 'member' || active) && (
+      {!dim && (node.kind === 'studio' || node.kind === 'kou' || node.kind === 'ni' || node.kind === 'member' || active) && (
         <mesh geometry={sphere} scale={scale * 1.8} raycast={() => null}>
           <meshBasicMaterial
             color={nodeColor(node)}

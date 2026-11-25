@@ -1,13 +1,13 @@
 import { useEffect, useMemo } from 'react'
 import * as THREE from 'three'
-import { KOU_KINDS, type NodeKind } from '../data/graph'
+import { systemOfKind, type NodeKind } from '../data/graph'
 import { COHORTS } from '../data/kou'
-import { COHORT_RADIUS, KOU_CENTER, SHELL_RADIUS, type Vec3 } from '../layout/layout'
+import { COHORT_RADIUS, KOU_CENTER, SHELL_RADIUS, SYSTEM_CENTER, type Vec3 } from '../layout/layout'
 import { useMapStore } from '../state/store'
 import { NODE_COLOR } from './palette'
 
 const STAR_COUNT = 2500
-const STAR_RADIUS = 520
+const STAR_RADIUS = 1600
 
 /**
  * Stars on a far sphere, plus one engraved brass ring per shell in the
@@ -40,14 +40,14 @@ export function Backdrop() {
   return (
     <>
       <points geometry={stars}>
-        <pointsMaterial color="#d8ccb0" size={1.4} sizeAttenuation transparent opacity={0.55} depthWrite={false} />
+        <pointsMaterial color="#d8ccb0" size={3.6} sizeAttenuation transparent opacity={0.55} depthWrite={false} />
       </points>
       {shells.map(([kind, radius]) => (
         <ShellRing
           key={kind}
           radius={radius}
           color={NODE_COLOR[kind]}
-          center={KOU_KINDS.has(kind) ? KOU_CENTER : ORIGIN}
+          center={SYSTEM_CENTER[systemOfKind(kind)]}
         />
       ))}
       {visible.release &&
@@ -63,8 +63,6 @@ export function Backdrop() {
     </>
   )
 }
-
-const ORIGIN: Vec3 = [0, 0, 0]
 
 function ShellRing({
   radius,

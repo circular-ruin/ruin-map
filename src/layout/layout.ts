@@ -1,4 +1,4 @@
-import { systemOf, type Graph, type GraphNode, type NodeKind } from '../data/graph'
+import { systemOf, type Graph, type GraphNode, type NodeKind, type System } from '../data/graph'
 import type { CohortId } from '../data/kou'
 
 export type Vec3 = [number, number, number]
@@ -23,17 +23,30 @@ export const SHELL_RADIUS: Record<NodeKind, number> = {
   artist: 64,
   player: 84,
   contributor: 104,
+  // Northern Information, the third body
+  ni: 0,
+  project: 28,
+  work: 46,
+  record: 68,
+  collaborator: 92,
 }
 
 /**
- * Kou Records is the second body of a binary system: far enough from the
- * studio that its shells read as their own sphere, close enough that the
- * studio's outer shells brush its edge.
+ * Three bodies. Kou Records sits beside the studio, close enough that the
+ * studio's outer shells brush its edge. Northern Information, Tyler
+ * Etters's umbrella and the studio's parent, completes the triangle.
  */
 export const KOU_CENTER: Vec3 = [250, 0, -30]
+export const NI_CENTER: Vec3 = [110, 0, 270]
+
+export const SYSTEM_CENTER: Record<System, Vec3> = {
+  cr: [0, 0, 0],
+  kou: KOU_CENTER,
+  ni: NI_CENTER,
+}
 
 export function centerOf(node: GraphNode): Vec3 {
-  return systemOf(node) === 'kou' ? KOU_CENTER : [0, 0, 0]
+  return SYSTEM_CENTER[systemOf(node)]
 }
 
 /** each cohort gets its own ring, oldest innermost, like growth rings */

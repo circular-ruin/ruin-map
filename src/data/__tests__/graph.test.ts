@@ -1,4 +1,5 @@
 import { describe, expect, it } from 'vitest'
+import discography from '@tyleretters/discography'
 import { buildGraph, slug } from '../graph'
 import { centerOf, layoutGraph, targetRadius } from '../../layout/layout'
 
@@ -31,6 +32,19 @@ describe('buildGraph', () => {
     // still linked to his film score
     expect(graph.edges.some((edge) => edge.source === lowe?.id && edge.target === 'candyman')).toBe(true)
     expect(graph.nodes.find((node) => node.id === 'randall')?.kind).toBe('member')
+  })
+
+  it('places every discography release in the Northern Information system', () => {
+    const records = graph.nodes.filter((node) => node.kind === 'record')
+    expect(records).toHaveLength(discography.length)
+  })
+
+  it('ties the three systems together', () => {
+    const has = (source: string, target: string) =>
+      graph.edges.some((edge) => edge.source === source && edge.target === target)
+    expect(has('northern-information', 'circular-ruin')).toBe(true)
+    expect(has('kou-records', 'circular-ruin')).toBe(true)
+    expect(has(slug('Tyler Etters'), 'torus')).toBe(true)
   })
 
   it('keeps team members out of the music roster', () => {

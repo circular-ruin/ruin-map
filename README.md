@@ -6,6 +6,9 @@ companies, musicians, and record labels. Kou Records, the label Charmaine Lee
 runs with Randall Dunn, is a second center in a binary orbit with the studio:
 its releases sit on one ring per cohort, colored like that cohort's vinyl,
 with artists, players, and the artwork and engineering crew beyond them.
+Northern Information, Tyler Etters's umbrella and Circular Ruin's parent, is
+the third body: his music projects, works and labels, every release in the
+discography, and the people credited on them.
 
 https://circular-ruin.github.io/ruin-map/
 
@@ -42,6 +45,10 @@ Pushes to `main` deploy to GitHub Pages via
   plus directors, writers, cast, composers, and companies checked against
   public film databases in November 2026. Unconfirmed fields are left out.
 
+- `src/data/ni.ts`: Northern Information projects and works from
+  nor.the-rn.info, and collaborators read from release credits. The releases
+  themselves come from the `@tyleretters/discography` package at build time,
+  so bumping that dependency picks up new releases.
 - `src/data/kou.ts`: every Kou Records release and its credits, transcribed
   from each release's Bandcamp page in November 2026.
 

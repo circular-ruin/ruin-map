@@ -150,6 +150,10 @@
 .legend li[data-kind='artist']::before { background: #ffa3c4; }
 .legend li[data-kind='player']::before { background: #d98fb6; }
 .legend li[data-kind='contributor']::before { background: #a67c93; }
+.legend li[data-kind='project']::before { background: #7fe7ff; }
+.legend li[data-kind='work']::before { background: #b8eefc; }
+.legend li[data-kind='record']::before { background: #3f9cc0; }
+.legend li[data-kind='collaborator']::before { background: #dfe6ee; }
 
 .connections {
   margin: 0;

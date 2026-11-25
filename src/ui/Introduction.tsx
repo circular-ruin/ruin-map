@@ -78,7 +78,7 @@ export function Introduction() {
     >
       <header className={styles.header}>
         <h1 id={titleId} className={styles.title}>
-          The Circular Ruin Orrery
+          The Ruin Orrery
         </h1>
         <button
           ref={closeRef}
@@ -94,8 +94,9 @@ export function Introduction() {
       <div className={styles.body}>
         <p className={styles.lede}>
           Every project Circular Ruin has touched, and everyone it connects, arranged as nested
-          spheres around the studio. Beside it, in a binary orbit, sits Kou Records, the label
-          Charmaine Lee runs with Randall Dunn.
+          spheres around the studio. Two more bodies share its orbit: Kou Records, the label
+          Charmaine Lee runs with Randall Dunn, and Northern Information, Tyler Etters's umbrella
+          and the studio's parent.
         </p>
 
         <h2 className={styles.heading}>The Shells</h2>
@@ -130,6 +131,21 @@ export function Introduction() {
           studio's client list.
         </p>
 
+        <h2 className={styles.heading}>Northern Information</h2>
+        <p>
+          The third sphere, and Circular Ruin's parent. Tyler Etters sits at its heart. Around him
+          are his {count('project')} music projects, then {count('work')} works and labels: the
+          Intertext non-label, norns community, arcologies, the Epicycle Orrery, and more. Further
+          out are all {count('record')} releases from the discography, and the people credited on
+          them. Tyler built Torus and Tiny Torus, which ties this sphere back to the studio.
+        </p>
+        <ul className={styles.legend}>
+          <li data-kind="project">Music projects, from STUXNET to Ix</li>
+          <li data-kind="work">Works, software, and labels</li>
+          <li data-kind="record">{count('record')} releases</li>
+          <li data-kind="collaborator">{count('collaborator')} collaborators</li>
+        </ul>
+
         <h2 className={styles.heading}>Getting Around</h2>
         <p>
           Drag to orbit, scroll to zoom, right-drag to pan. Click anything to fly to it and see its
@@ -140,7 +156,8 @@ export function Introduction() {
         <p className={styles.hint}>
           Built from circularruin.com and the team's credits, with directors, cast, and composers
           checked against public film databases. Kou credits come from each release's Bandcamp
-          page. Missing credits are left out, not guessed.
+          page, and Northern Information from nor.the-rn.info and the published discography.
+          Missing credits are left out, not guessed.
         </p>
       </div>
     </section>

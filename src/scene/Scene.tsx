@@ -9,7 +9,7 @@ import { Nodes } from './Nodes'
 export function Scene() {
   return (
     <Canvas
-      camera={{ position: [125, 230, 480], fov: 45, near: 0.1, far: 2000 }}
+      camera={{ position: [120, 640, 560], fov: 45, near: 0.1, far: 4000 }}
       // dev console handle, as in the orrery
       onCreated={({ camera }) => {
         Object.assign(window, { ruinMap: { camera, positions, store: useMapStore } })

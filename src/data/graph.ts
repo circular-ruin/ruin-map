@@ -8,6 +8,8 @@ import {
   SOFTWARE,
 } from './credits'
 import { COHORTS, KOU_RELEASES, MASTERED_AT_CIRCULAR_RUIN, type CohortId, type CreditType } from './kou'
+import discography from '@tyleretters/discography'
+import { NI_CREDITS, NI_LABELS, NI_LINKS, NI_PROJECT_MEMBERS, NI_PROJECTS, NI_WORKS } from './ni'
 import roster from './roster.json'
 
 export type NodeKind =
@@ -24,11 +26,23 @@ export type NodeKind =
   | 'artist'
   | 'player'
   | 'contributor'
+  | 'ni'
+  | 'project'
+  | 'work'
+  | 'record'
+  | 'collaborator'
 
 /** which center a node orbits */
-export type System = 'cr' | 'kou'
+export type System = 'cr' | 'kou' | 'ni'
 
 export const KOU_KINDS = new Set<NodeKind>(['kou', 'release', 'artist', 'player', 'contributor'])
+export const NI_KINDS = new Set<NodeKind>(['ni', 'project', 'work', 'record', 'collaborator'])
+
+export function systemOfKind(kind: NodeKind): System {
+  if (KOU_KINDS.has(kind)) return 'kou'
+  if (NI_KINDS.has(kind)) return 'ni'
+  return 'cr'
+}
 
 export type EdgeKind =
   | 'studio'
@@ -46,6 +60,10 @@ export type EdgeKind =
   | 'performer'
   | 'production'
   | 'artwork'
+  | 'ni'
+  | 'record'
+  | 'imprint'
+  | 'collab'
 
 export interface GraphNode {
   id: string
@@ -66,7 +84,7 @@ export interface GraphNode {
 }
 
 export function systemOf(node: GraphNode): System {
-  return KOU_KINDS.has(node.kind) ? 'kou' : 'cr'
+  return systemOfKind(node.kind)
 }
 
 export interface GraphEdge {
@@ -84,6 +102,7 @@ export interface Graph {
 
 const STUDIO_ID = 'circular-ruin'
 const KOU_ID = 'kou-records'
+const NI_ID = 'northern-information'
 
 const CREDIT_EDGE: Record<CreditType, EdgeKind> = {
   performer: 'performer',
@@ -251,11 +270,99 @@ export function buildGraph(): Graph {
     }
   }
 
+  // Northern Information: Tyler Etters's umbrella, and Circular Ruin's parent
+  nodes.set(NI_ID, {
+    id: NI_ID,
+    name: 'Northern Information',
+    kind: 'ni',
+    subtitle: 'Music, software, and art',
+    note: "Tyler Etters's umbrella. It lists Circular Ruin among its subsidiaries, alongside the Intertext non-label, norns community, arcologies, and the Epicycle Orrery this map is modeled on.",
+  })
+  link(NI_ID, STUDIO_ID, 'ni', 'Subsidiary')
+  const tyler = upsert('Tyler Etters', 'collaborator', { founder: true })
+  link(tyler, NI_ID, 'ni', 'Founder')
+  link(tyler, 'torus', 'link', 'Lead developer')
+  link(tyler, 'tiny-torus', 'link', 'Lead developer')
+
+  for (const work of NI_WORKS) {
+    nodes.set(work.id, {
+      id: work.id,
+      name: work.name,
+      kind: 'work',
+      subtitle: `${WORK_LABEL[work.kind]}, ${work.dates}`,
+      note: work.blurb,
+    })
+    link(work.id, NI_ID, 'ni', WORK_LABEL[work.kind])
+  }
+
+  const projectByAlias = new Map<string, string>()
+  for (const project of NI_PROJECTS) {
+    nodes.set(project.id, {
+      id: project.id,
+      name: project.name,
+      kind: 'project',
+      subtitle: project.active ? 'Music project, active' : 'Music project, retired',
+      note: project.bio,
+    })
+    link(project.id, NI_ID, 'ni', 'Music project')
+    for (const alias of project.aliases) projectByAlias.set(alias, project.id)
+    for (const member of NI_PROJECT_MEMBERS[project.id] ?? []) {
+      link(upsert(member.name, 'collaborator'), project.id, 'collab', member.role)
+    }
+  }
+
+  for (const release of discography) {
+    const projectId = projectByAlias.get(release.project)
+    if (!projectId) throw new Error(`No Northern Information project for "${release.project}"`)
+    const id = `ni-${release.id}`
+    // Long Now dates: "02025-11-18" or "02008-??-??"
+    const year = Number(release.released.slice(0, 5))
+    nodes.set(id, {
+      id,
+      name: release.title,
+      kind: 'record',
+      year,
+      subtitle: `${release.type}, ${year}, ${release.label}`,
+      note: `${release.project}. ${release.role}.`,
+    })
+    link(id, projectId, 'record', release.type)
+    const labelId = NI_LABELS[release.label]
+    if (labelId && labelId !== projectId) link(id, labelId, 'imprint', 'Label')
+    for (const credit of NI_CREDITS[release.title] ?? []) {
+      link(upsert(credit.name, 'collaborator'), id, 'collab', credit.role)
+    }
+  }
+
+  // Tyler's role on each project, from the discography ("Operator" for
+  // STUXNET, "DJ" for DJ STUXNET, and so on)
+  const rolesByProject = new Map<string, Set<string>>()
+  for (const release of discography) {
+    const projectId = projectByAlias.get(release.project)!
+    const roles = rolesByProject.get(projectId) ?? new Set<string>()
+    roles.add(release.role)
+    rolesByProject.set(projectId, roles)
+  }
+  for (const [projectId, roles] of rolesByProject) {
+    link(tyler, projectId, 'collab', [...roles].join(', '))
+  }
+
+  for (const extra of NI_LINKS) {
+    link(upsert(extra.a, 'collaborator'), extra.b, 'collab', extra.role)
+  }
+
   for (const extra of EXTRA_LINKS) {
     link(upsert(extra.a, 'person'), upsert(extra.b, 'musician'), 'link', extra.role)
   }
 
   return { nodes: [...nodes.values()], edges }
+}
+
+const WORK_LABEL: Record<(typeof NI_WORKS)[number]['kind'], string> = {
+  label: 'Label',
+  software: 'Software',
+  event: 'Event',
+  art: 'Art',
+  publication: 'Publication',
 }
 
 /** lower wins when one entity shows up under several kinds */
@@ -275,7 +382,13 @@ const KIND_PRIORITY: Record<NodeKind, number> = {
   musician: 6,
   contributor: 6.5,
   label: 7,
+  ni: 1.6,
+  project: 3.3,
+  work: 3.4,
+  record: 3.6,
+  collaborator: 6.8,
 }
 
 export const STUDIO = STUDIO_ID
 export const KOU = KOU_ID
+export const NI = NI_ID

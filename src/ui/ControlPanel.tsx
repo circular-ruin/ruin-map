@@ -15,6 +15,10 @@ const TOGGLED_KINDS: NodeKind[] = [
   'artist',
   'player',
   'contributor',
+  'project',
+  'work',
+  'record',
+  'collaborator',
 ]
 
 /**

@@ -8,8 +8,8 @@ import { nodeById, positions, useMapStore } from '../state/store'
 
 const FLIGHT_SECONDS = 0.9
 const FOCUS_DISTANCE = 64
-/** frames both systems on load: the studio and Kou Records */
-const INITIAL_TARGET = new Vector3(125, 0, -15)
+/** frames all three systems on load: roughly their centroid */
+const INITIAL_TARGET = new Vector3(120, 0, 80)
 
 /**
  * Exactly one control scheme is mounted at a time, as in the orrery.
@@ -114,7 +114,7 @@ export function CameraRig() {
       autoRotate={autoRotate}
       autoRotateSpeed={0.35}
       minDistance={4}
-      maxDistance={420}
+      maxDistance={1100}
       onStart={() => {
         // grabbing the camera cancels a flight in progress
         flight.current = null

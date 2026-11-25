@@ -16,6 +16,11 @@ export const NODE_COLOR: Record<NodeKind, string> = {
   artist: '#ffa3c4',
   player: '#d98fb6',
   contributor: '#a67c93',
+  ni: '#4fd8ff',
+  project: '#7fe7ff',
+  work: '#b8eefc',
+  record: '#3f9cc0',
+  collaborator: '#dfe6ee',
 }
 
 export const NODE_SIZE: Record<NodeKind, number> = {
@@ -32,6 +37,11 @@ export const NODE_SIZE: Record<NodeKind, number> = {
   artist: 1.15,
   player: 0.8,
   contributor: 0.6,
+  ni: 3,
+  project: 1.5,
+  work: 1.05,
+  record: 0.75,
+  collaborator: 0.65,
 }
 
 export const KIND_LABEL: Record<NodeKind, string> = {
@@ -48,6 +58,11 @@ export const KIND_LABEL: Record<NodeKind, string> = {
   artist: 'Kou Artists',
   player: 'Kou Players',
   contributor: 'Kou Artwork & Engineering',
+  ni: 'Northern Information',
+  project: 'NI Music Projects',
+  work: 'NI Works & Labels',
+  record: 'NI Releases',
+  collaborator: 'NI Collaborators',
 }
 
 export const EDGE_COLOR: Record<EdgeKind, string> = {
@@ -66,6 +81,10 @@ export const EDGE_COLOR: Record<EdgeKind, string> = {
   performer: '#d98fb6',
   production: '#ffb35c',
   artwork: '#7d5a6c',
+  ni: '#4fd8ff',
+  record: '#3f9cc0',
+  imprint: '#2f6a80',
+  collab: '#dfe6ee',
 }
 
 /** releases take their cohort's vinyl color */

@@ -22,6 +22,8 @@ function alwaysLabeled(node: GraphNode): boolean {
     node.kind === 'member' ||
     node.kind === 'kou' ||
     node.kind === 'release' ||
+    node.kind === 'ni' ||
+    node.kind === 'project' ||
     !!node.founder ||
     (node.kind === 'film' && !!node.selected)
   )
