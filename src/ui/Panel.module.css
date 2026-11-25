@@ -1,0 +1,240 @@
+.panel {
+  position: fixed;
+  /* Above the leva panel (z-index 1000), which covers narrow screens. */
+  z-index: 1001;
+  display: flex;
+  flex-direction: column;
+  width: min(360px, calc(100vw - 32px));
+  box-sizing: border-box;
+  color: #d9ceb0;
+  background: rgb(10 10 16 / 0.86);
+  border: 1px solid rgb(200 185 138 / 0.28);
+  border-radius: 6px;
+  box-shadow: 0 8px 32px rgb(0 0 0 / 0.6);
+  backdrop-filter: blur(6px);
+  font-size: 13px;
+  line-height: 1.6;
+}
+
+.left {
+  top: 72px;
+  left: 16px;
+  max-height: calc(100dvh - 150px);
+}
+
+.right {
+  right: 16px;
+  bottom: 16px;
+  max-height: 45dvh;
+}
+
+@media (min-width: 900px) {
+  .left {
+    top: 16px;
+    max-height: calc(100dvh - 100px);
+  }
+
+  .right {
+    max-height: calc(100dvh - 360px);
+    min-height: 200px;
+  }
+}
+
+.header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 14px 12px 10px 18px;
+  border-bottom: 1px solid rgb(200 185 138 / 0.18);
+}
+
+.title {
+  margin: 0;
+  color: #f0e2b6;
+  font-size: 15px;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+}
+
+.kind {
+  font-size: 11px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+
+.subtitle {
+  color: #a79a76;
+  font-size: 12px;
+}
+
+.close {
+  display: grid;
+  flex: none;
+  place-items: center;
+  width: 32px;
+  height: 32px;
+  padding: 0;
+  color: #c8b98a;
+  background: transparent;
+  border: 1px solid transparent;
+  border-radius: 4px;
+  font: inherit;
+  font-size: 20px;
+  line-height: 1;
+  cursor: pointer;
+}
+
+.close:hover {
+  color: #f0e2b6;
+  background: rgb(200 185 138 / 0.12);
+}
+
+.body {
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  padding: 4px 18px 18px;
+}
+
+.body p {
+  margin: 0 0 10px;
+}
+
+.lede {
+  color: #e8dcba;
+  margin-top: 10px !important;
+}
+
+.heading {
+  margin: 18px 0 6px;
+  color: #c8b98a;
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+
+.count {
+  color: #7d7258;
+  font-weight: 400;
+}
+
+.legend {
+  margin: 0 0 10px;
+  padding: 0;
+  list-style: none;
+}
+
+.legend li {
+  position: relative;
+  padding-left: 18px;
+}
+
+.legend li::before {
+  position: absolute;
+  top: 0.55em;
+  left: 2px;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  content: '';
+}
+
+.legend li[data-kind='member']::before { background: #ffb35c; }
+.legend li[data-kind='film']::before { background: #e9d9a6; }
+.legend li[data-kind='person']::before { background: #86bde0; }
+.legend li[data-kind='company']::before { background: #c79be0; }
+.legend li[data-kind='musician']::before { background: #8fd18b; }
+.legend li[data-kind='label']::before { background: #6f9c86; }
+
+.connections {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.connections button {
+  display: grid;
+  grid-template-columns: 8px 1fr;
+  column-gap: 8px;
+  align-items: center;
+  width: 100%;
+  padding: 4px 6px;
+  color: inherit;
+  background: transparent;
+  border: 0;
+  border-radius: 4px;
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+
+.connections button:hover {
+  background: rgb(200 185 138 / 0.12);
+}
+
+.dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+}
+
+.name {
+  color: #f0e2b6;
+}
+
+.role {
+  grid-column: 2;
+  color: #a79a76;
+  font-size: 11px;
+}
+
+.body .hint {
+  margin-top: 16px;
+  padding-top: 12px;
+  border-top: 1px solid rgb(200 185 138 / 0.18);
+  color: #a79a76;
+  font-size: 12px;
+}
+
+.reopen {
+  position: fixed;
+  top: 72px;
+  left: 16px;
+  z-index: 1001;
+  padding: 8px 12px;
+  color: #c8b98a;
+  background: rgb(10 10 16 / 0.8);
+  border: 1px solid rgb(200 185 138 / 0.28);
+  border-radius: 4px;
+  font: inherit;
+  font-size: 12px;
+  letter-spacing: 0.08em;
+  cursor: pointer;
+}
+
+@media (min-width: 900px) {
+  .reopen {
+    top: 16px;
+  }
+}
+
+.reopen:hover {
+  color: #f0e2b6;
+  border-color: rgb(200 185 138 / 0.5);
+}
+
+.close:focus-visible,
+.reopen:focus-visible,
+.connections button:focus-visible {
+  outline: 2px solid #f0e2b6;
+  outline-offset: 2px;
+}
+
+@media (prefers-reduced-transparency: reduce) {
+  .panel,
+  .reopen {
+    background: #0a0a10;
+    backdrop-filter: none;
+  }
+}

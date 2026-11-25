@@ -1,0 +1,131 @@
+import { useEffect, useId, useRef, useState } from 'react'
+import { graph, useMapStore } from '../state/store'
+import styles from './Panel.module.css'
+
+const DISMISSED_KEY = 'ruin-map:intro-dismissed'
+
+function readDismissed(): boolean {
+  try {
+    return window.localStorage.getItem(DISMISSED_KEY) === '1'
+  } catch {
+    return false
+  }
+}
+
+function writeDismissed(dismissed: boolean) {
+  try {
+    if (dismissed) window.localStorage.setItem(DISMISSED_KEY, '1')
+    else window.localStorage.removeItem(DISMISSED_KEY)
+  } catch {
+    // Storage can be unavailable; the panel just reopens on the next visit.
+  }
+}
+
+const count = (kind: string) => graph.nodes.filter((node) => node.kind === kind).length
+
+/**
+ * Left-side introduction, after the orrery: non-modal so the map stays
+ * interactive, and dismissal is remembered per browser.
+ */
+export function Introduction() {
+  const [open, setOpen] = useState(() => !readDismissed())
+  const titleId = useId()
+  const closeRef = useRef<HTMLButtonElement>(null)
+  const openRef = useRef<HTMLButtonElement>(null)
+  const hasToggled = useRef(false)
+
+  useEffect(() => {
+    if (!hasToggled.current) return
+    if (open) closeRef.current?.focus()
+    else openRef.current?.focus()
+  }, [open])
+
+  // on narrow screens the detail panel needs the room: step aside for a
+  // selection without remembering it as a dismissal
+  useEffect(
+    () =>
+      useMapStore.subscribe((state, previous) => {
+        if (state.selectedId && state.selectedId !== previous.selectedId) {
+          if (window.matchMedia('(max-width: 899px)').matches) setOpen(false)
+        }
+      }),
+    [],
+  )
+
+  const toggle = (next: boolean) => {
+    hasToggled.current = true
+    writeDismissed(!next)
+    setOpen(next)
+  }
+
+  if (!open) {
+    return (
+      <button ref={openRef} type="button" className={styles.reopen} onClick={() => toggle(true)}>
+        About This Map
+      </button>
+    )
+  }
+
+  return (
+    <section
+      role="dialog"
+      aria-modal="false"
+      aria-labelledby={titleId}
+      className={`${styles.panel} ${styles.left}`}
+      onKeyDown={(event) => {
+        if (event.key === 'Escape') toggle(false)
+      }}
+    >
+      <header className={styles.header}>
+        <h1 id={titleId} className={styles.title}>
+          The Circular Ruin Orrery
+        </h1>
+        <button
+          ref={closeRef}
+          type="button"
+          className={styles.close}
+          onClick={() => toggle(false)}
+          aria-label="Close the introduction"
+        >
+          ×
+        </button>
+      </header>
+
+      <div className={styles.body}>
+        <p className={styles.lede}>
+          Every project Circular Ruin has touched, and everyone it connects, arranged as nested
+          spheres around the studio.
+        </p>
+
+        <h2 className={styles.heading}>The Shells</h2>
+        <ul className={styles.legend}>
+          <li data-kind="member">The team: Randall Dunn, Ben Greenberg, and Arjan Miranda</li>
+          <li data-kind="film">
+            {count('film')} films and series. Selected works sit on the inner shell
+          </li>
+          <li data-kind="person">{count('person')} directors, writers, cast, and composers</li>
+          <li data-kind="company">{count('company')} production companies and distributors</li>
+          <li data-kind="musician">{count('musician')} musicians and bands</li>
+          <li data-kind="label">{count('label')} record labels</li>
+        </ul>
+        <p>
+          Lines are credits. Orange lines are the team's own work on a project; pink lines are
+          composers; blue are directors and cast. The faint lines out to the edge are the
+          studio's client list.
+        </p>
+
+        <h2 className={styles.heading}>Getting Around</h2>
+        <p>
+          Drag to orbit, scroll to zoom, right-drag to pan. Click anything to fly to it and see its
+          connections; click a connection to keep walking. Press C to switch to fly mode (WASD to
+          move, R and F for up and down, drag to look). Escape clears the selection.
+        </p>
+
+        <p className={styles.hint}>
+          Built from circularruin.com and the team's credits, with directors, cast, and composers
+          checked against public film databases. Missing credits are left out, not guessed.
+        </p>
+      </div>
+    </section>
+  )
+}
