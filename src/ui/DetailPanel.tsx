@@ -1,6 +1,6 @@
 import { useId, useMemo } from 'react'
 import type { GraphEdge, GraphNode } from '../data/graph'
-import { KIND_LABEL, NODE_COLOR } from '../scene/palette'
+import { KIND_LABEL, nodeColor } from '../scene/palette'
 import { edgesByNode, nodeById, useMapStore } from '../state/store'
 import styles from './Panel.module.css'
 
@@ -12,6 +12,11 @@ interface Connection {
 /** group headings, in display order */
 const GROUPS: [string, (edge: GraphEdge, other: GraphNode) => boolean][] = [
   ['Circular Ruin', (edge) => edge.kind === 'crew' || edge.kind === 'studio'],
+  ['Kou Records', (edge) => edge.kind === 'kou'],
+  ['Kou Releases', (edge) => edge.kind === 'release'],
+  ['Players', (edge) => edge.kind === 'performer'],
+  ['Production & Engineering', (edge) => edge.kind === 'production'],
+  ['Artwork & Design', (edge) => edge.kind === 'artwork'],
   ['Directed & Written By', (edge) => edge.kind === 'director' || edge.kind === 'writer'],
   ['Music', (edge) => edge.kind === 'composer' || edge.kind === 'music'],
   ['Cast', (edge) => edge.kind === 'cast'],
@@ -52,7 +57,7 @@ export function DetailPanel() {
     <section aria-labelledby={titleId} className={`${styles.panel} ${styles.right}`} aria-live="polite">
       <header className={styles.header}>
         <div>
-          <div className={styles.kind} style={{ color: NODE_COLOR[node.kind] }}>
+          <div className={styles.kind} style={{ color: nodeColor(node) }}>
             {KIND_LABEL[node.kind]}
           </div>
           <h2 id={titleId} className={styles.title}>
@@ -80,7 +85,7 @@ export function DetailPanel() {
               {connections.map(({ node: other, role }) => (
                 <li key={`${other.id}-${role}`}>
                   <button type="button" onClick={() => select(other.id)}>
-                    <span className={styles.dot} style={{ background: NODE_COLOR[other.kind] }} />
+                    <span className={styles.dot} style={{ background: nodeColor(other) }} />
                     <span className={styles.name}>
                       {other.name}
                       {other.year ? ` (${other.year})` : ''}

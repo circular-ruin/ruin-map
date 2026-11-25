@@ -7,7 +7,7 @@ TypeScript, react-three-fiber 9, drei 10, leva, zustand, vitest. Modeled on
 ## Layout
 
 - `src/data/` — `roster.json` (site client lists), `credits.ts`
-  (hand-authored credits), `graph.ts` (builds one node per real entity,
+  (hand-authored credits), `kou.ts` (Kou Records releases), `graph.ts` (builds one node per real entity,
   folding aliases)
 - `src/layout/layout.ts` — pure TS, deterministic shell-constrained force
   layout. Never import React or Three here.
@@ -16,6 +16,10 @@ TypeScript, react-three-fiber 9, drei 10, leva, zustand, vitest. Modeled on
 
 ## Key patterns
 
+- Two systems: nodes orbit the studio or Kou Records (`systemOf`,
+  `centerOf`). A Kou release artist moves into Kou's orbit even if the
+  studio knows them from film work; players and crew stay put
+  (`KIND_PRIORITY` in `graph.ts`). Cross-system springs are weak on purpose.
 - Labels are one DOM overlay (`LabelLayer`) moved per frame by
   `LabelProjector`. Do not switch to drei `<Html>` per label: it mounts a
   React root each, which floods React warnings when hover changes the set.

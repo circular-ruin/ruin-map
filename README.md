@@ -2,7 +2,10 @@
 
 An interactive 3D map of Circular Ruin's projects and the people connected to
 them: the team, films and series, directors, cast, composers, production
-companies, musicians, and record labels.
+companies, musicians, and record labels. Kou Records, the label Charmaine Lee
+runs with Randall Dunn, is a second center in a binary orbit with the studio:
+its releases sit on one ring per cohort, colored like that cohort's vinyl,
+with artists, players, and the artwork and engineering crew beyond them.
 
 https://circular-ruin.github.io/ruin-map/
 
@@ -38,6 +41,9 @@ Pushes to `main` deploy to GitHub Pages via
 - `src/data/credits.ts`: team bios and per-person credits from the team page,
   plus directors, writers, cast, composers, and companies checked against
   public film databases in November 2026. Unconfirmed fields are left out.
+
+- `src/data/kou.ts`: every Kou Records release and its credits, transcribed
+  from each release's Bandcamp page in November 2026.
 
 Where the site and public sources disagree, the map follows the public
 sources:

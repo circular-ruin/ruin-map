@@ -3,10 +3,13 @@ import { useFrame, useThree } from '@react-three/fiber'
 import { useEffect, useRef } from 'react'
 import { MathUtils, Vector3 } from 'three'
 import type { FlyControls as FlyControlsImpl, OrbitControls as OrbitControlsImpl } from 'three-stdlib'
-import { positions, useMapStore } from '../state/store'
+import { centerOf } from '../layout/layout'
+import { nodeById, positions, useMapStore } from '../state/store'
 
 const FLIGHT_SECONDS = 0.9
 const FOCUS_DISTANCE = 64
+/** frames both systems on load: the studio and Kou Records */
+const INITIAL_TARGET = new Vector3(125, 0, -15)
 
 /**
  * Exactly one control scheme is mounted at a time, as in the orrery.
@@ -20,6 +23,8 @@ export function CameraRig() {
   const focusVersion = useMapStore((state) => state.focusVersion)
   const camera = useThree((state) => state.camera)
   const flyRef = useRef<FlyControlsImpl>(null)
+  // survives remounts of OrbitControls when switching camera modes
+  const orbitTarget = useRef(INITIAL_TARGET.clone())
   const orbitRef = useRef<OrbitControlsImpl>(null)
   const flight = useRef<{
     t: number
@@ -45,18 +50,26 @@ export function CameraRig() {
   }, [])
 
   useEffect(() => {
+    const orbit = orbitRef.current
+    if (!orbit) return
+    orbit.target.copy(orbitTarget.current)
+    orbit.update()
+  }, [mode])
+
+  useEffect(() => {
     const { selectedId } = useMapStore.getState()
     if (!selectedId) return
     const node = positions.get(selectedId)
     if (!node) return
     const toTarget = new Vector3(...node)
     const currentTarget = orbitRef.current?.target.clone() ?? new Vector3()
-    // approach from outside the node's shell, tilted up a little, so the
-    // studio and inner shells sit behind it instead of filling the view
-    const radius = toTarget.length()
+    // approach from outside the node's shell, tilted up a little, so its
+    // system's center and inner shells sit behind it
+    const outward = toTarget.clone().sub(new Vector3(...centerOf(nodeById.get(selectedId)!)))
+    const radius = outward.length()
     const direction =
       radius > 1
-        ? toTarget.clone().normalize().add(new Vector3(0, 0.35, 0)).normalize()
+        ? outward.normalize().add(new Vector3(0, 0.35, 0)).normalize()
         : camera.position.clone().sub(currentTarget).normalize()
     const distance = radius < 1 ? FOCUS_DISTANCE * 2.5 : FOCUS_DISTANCE + radius * 0.4
     flight.current = {
@@ -71,6 +84,8 @@ export function CameraRig() {
   useFrame((_, delta) => {
     const fly = flyRef.current
     if (fly) fly.movementSpeed = MathUtils.clamp(camera.position.length() * 0.5, 4, 120)
+
+    if (orbitRef.current) orbitTarget.current.copy(orbitRef.current.target)
 
     const f = flight.current
     if (!f) return

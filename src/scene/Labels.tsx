@@ -3,7 +3,7 @@ import { useMemo } from 'react'
 import { Vector3 } from 'three'
 import type { GraphNode } from '../data/graph'
 import { graph, neighborsOf, positions, useMapStore } from '../state/store'
-import { NODE_COLOR } from './palette'
+import { nodeColor } from './palette'
 
 /** past this many neighbors, labeling all of them is just noise */
 const NEIGHBOR_LABEL_LIMIT = 60
@@ -17,7 +17,14 @@ const NEIGHBOR_LABEL_LIMIT = 60
 const elements = new Map<string, HTMLDivElement>()
 
 function alwaysLabeled(node: GraphNode): boolean {
-  return node.kind === 'studio' || node.kind === 'member' || (node.kind === 'film' && !!node.selected)
+  return (
+    node.kind === 'studio' ||
+    node.kind === 'member' ||
+    node.kind === 'kou' ||
+    node.kind === 'release' ||
+    !!node.founder ||
+    (node.kind === 'film' && !!node.selected)
+  )
 }
 
 /** DOM overlay, rendered outside the Canvas. */
@@ -53,7 +60,7 @@ export function LabelLayer() {
               else elements.delete(node.id)
             }}
             className={`node-label${emphasis ? ' node-label--focus' : ''}`}
-            style={{ color: NODE_COLOR[node.kind], visibility: 'hidden' }}
+            style={{ color: nodeColor(node), visibility: 'hidden' }}
             data-kind={node.kind}
           >
             {node.name}

@@ -1,4 +1,5 @@
-import type { EdgeKind, NodeKind } from '../data/graph'
+import type { EdgeKind, GraphNode, NodeKind } from '../data/graph'
+import { COHORTS } from '../data/kou'
 
 /** Brass and ember on near-black, after the orrery. */
 export const NODE_COLOR: Record<NodeKind, string> = {
@@ -10,6 +11,11 @@ export const NODE_COLOR: Record<NodeKind, string> = {
   company: '#c79be0',
   musician: '#8fd18b',
   label: '#6f9c86',
+  kou: '#ff5c8a',
+  release: '#ff9a3c',
+  artist: '#ffa3c4',
+  player: '#d98fb6',
+  contributor: '#a67c93',
 }
 
 export const NODE_SIZE: Record<NodeKind, number> = {
@@ -21,6 +27,11 @@ export const NODE_SIZE: Record<NodeKind, number> = {
   company: 0.75,
   musician: 0.6,
   label: 0.45,
+  kou: 3,
+  release: 1.6,
+  artist: 1.15,
+  player: 0.8,
+  contributor: 0.6,
 }
 
 export const KIND_LABEL: Record<NodeKind, string> = {
@@ -32,6 +43,11 @@ export const KIND_LABEL: Record<NodeKind, string> = {
   company: 'Production Companies',
   musician: 'Musicians',
   label: 'Record Labels',
+  kou: 'Kou Records',
+  release: 'Kou Releases',
+  artist: 'Kou Artists',
+  player: 'Kou Players',
+  contributor: 'Kou Artwork & Engineering',
 }
 
 export const EDGE_COLOR: Record<EdgeKind, string> = {
@@ -45,4 +61,17 @@ export const EDGE_COLOR: Record<EdgeKind, string> = {
   music: '#8fd18b',
   roster: '#4b5a52',
   link: '#d0d0d0',
+  kou: '#ff5c8a',
+  release: '#ffa3c4',
+  performer: '#d98fb6',
+  production: '#ffb35c',
+  artwork: '#7d5a6c',
+}
+
+/** releases take their cohort's vinyl color */
+export function nodeColor(node: GraphNode): string {
+  if (node.kind === 'release' && node.cohort) {
+    return COHORTS.find((cohort) => cohort.id === node.cohort)?.color ?? NODE_COLOR.release
+  }
+  return NODE_COLOR[node.kind]
 }

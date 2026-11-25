@@ -1,4 +1,5 @@
-import type { Graph, GraphNode, NodeKind } from '../data/graph'
+import { systemOf, type Graph, type GraphNode, type NodeKind } from '../data/graph'
+import type { CohortId } from '../data/kou'
 
 export type Vec3 = [number, number, number]
 
@@ -16,11 +17,38 @@ export const SHELL_RADIUS: Record<NodeKind, number> = {
   company: 82,
   musician: 104,
   label: 128,
+  // Kou Records' own nested system, around its own center
+  kou: 0,
+  release: 40,
+  artist: 64,
+  player: 84,
+  contributor: 104,
+}
+
+/**
+ * Kou Records is the second body of a binary system: far enough from the
+ * studio that its shells read as their own sphere, close enough that the
+ * studio's outer shells brush its edge.
+ */
+export const KOU_CENTER: Vec3 = [250, 0, -30]
+
+export function centerOf(node: GraphNode): Vec3 {
+  return systemOf(node) === 'kou' ? KOU_CENTER : [0, 0, 0]
+}
+
+/** each cohort gets its own ring, oldest innermost, like growth rings */
+export const COHORT_RADIUS: Record<CohortId, number> = {
+  pre: 24,
+  'cohort-1': 32,
+  'spring-26': 41,
+  'fall-26': 50,
 }
 
 /** unselected films sit a little outside the selected works */
 export function targetRadius(node: GraphNode): number {
   if (node.kind === 'film' && !node.selected) return SHELL_RADIUS.film + 7
+  if (node.kind === 'release' && node.cohort) return COHORT_RADIUS[node.cohort]
+  if (node.founder) return 14
   return SHELL_RADIUS[node.kind]
 }
 
@@ -48,6 +76,7 @@ export function layoutGraph(graph: Graph, iterations = 260): Map<string, Vec3> {
   const n = graph.nodes.length
   const index = new Map(graph.nodes.map((node, i) => [node.id, i]))
   const radii = graph.nodes.map(targetRadius)
+  const centers = graph.nodes.map(centerOf)
   const pos = new Float64Array(n * 3)
 
   graph.nodes.forEach((_, i) => {
@@ -56,14 +85,24 @@ export function layoutGraph(graph: Graph, iterations = 260): Map<string, Vec3> {
     const azimuth = rand() * Math.PI * 2
     const planar = Math.sqrt(1 - z * z)
     const r = radii[i]
-    pos[i * 3] = r * planar * Math.cos(azimuth)
-    pos[i * 3 + 1] = r * z * 0.75
-    pos[i * 3 + 2] = r * planar * Math.sin(azimuth)
+    const [cx, cy, cz] = centers[i]
+    pos[i * 3] = cx + r * planar * Math.cos(azimuth)
+    pos[i * 3 + 1] = cy + r * z * 0.75
+    pos[i * 3 + 2] = cz + r * planar * Math.sin(azimuth)
   })
 
+  const systems = graph.nodes.map(systemOf)
   const springs = graph.edges
     .filter((edge) => edge.kind !== 'studio' && edge.kind !== 'roster')
-    .map((edge) => [index.get(edge.source)!, index.get(edge.target)!] as const)
+    // the two centers are pinned; springs to them would only pull inward
+    .filter((edge) => radii[index.get(edge.source)!] > 0 && radii[index.get(edge.target)!] > 0)
+    .map((edge) => {
+      const a = index.get(edge.source)!
+      const b = index.get(edge.target)!
+      // links between the two systems pull gently, or every Kou release
+      // would bunch on the side facing Randall and Ben
+      return [a, b, systems[a] === systems[b] ? 0.02 : 0.002] as const
+    })
 
   const force = new Float64Array(n * 3)
   for (let step = 0; step < iterations; step++) {
@@ -87,11 +126,10 @@ export function layoutGraph(graph: Graph, iterations = 260): Map<string, Vec3> {
       }
     }
 
-    for (const [a, b] of springs) {
+    for (const [a, b, pull] of springs) {
       const dx = pos[b * 3] - pos[a * 3]
       const dy = pos[b * 3 + 1] - pos[a * 3 + 1]
       const dz = pos[b * 3 + 2] - pos[a * 3 + 2]
-      const pull = 0.02
       force[a * 3] += dx * pull
       force[a * 3 + 1] += dy * pull
       force[a * 3 + 2] += dz * pull
@@ -102,8 +140,11 @@ export function layoutGraph(graph: Graph, iterations = 260): Map<string, Vec3> {
 
     for (let i = 0; i < n; i++) {
       const r = radii[i]
+      const [cx, cy, cz] = centers[i]
       if (r === 0) {
-        pos[i * 3] = pos[i * 3 + 1] = pos[i * 3 + 2] = 0
+        pos[i * 3] = cx
+        pos[i * 3 + 1] = cy
+        pos[i * 3 + 2] = cz
         continue
       }
       const limit = 3 * cooling + 0.1
@@ -112,13 +153,13 @@ export function layoutGraph(graph: Graph, iterations = 260): Map<string, Vec3> {
       }
       // project back onto the shell; flatten the poles a little so the
       // map reads as a wide disc from the default camera angle
-      const x = pos[i * 3]
-      const y = pos[i * 3 + 1]
-      const z = pos[i * 3 + 2]
+      const x = pos[i * 3] - cx
+      const y = pos[i * 3 + 1] - cy
+      const z = pos[i * 3 + 2] - cz
       const length = Math.hypot(x, y / 0.75, z) || 1
-      pos[i * 3] = (x / length) * r
-      pos[i * 3 + 1] = (y / length) * r
-      pos[i * 3 + 2] = (z / length) * r
+      pos[i * 3] = cx + (x / length) * r
+      pos[i * 3 + 1] = cy + (y / length) * r
+      pos[i * 3 + 2] = cz + (z / length) * r
     }
   }
 

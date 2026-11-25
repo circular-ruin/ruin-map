@@ -3,7 +3,7 @@ import { useMemo } from 'react'
 import * as THREE from 'three'
 import type { GraphNode } from '../data/graph'
 import { edgesByNode, graph, neighborsOf, positions, useMapStore } from '../state/store'
-import { NODE_COLOR, NODE_SIZE } from './palette'
+import { NODE_SIZE, nodeColor } from './palette'
 
 const sphere = new THREE.SphereGeometry(1, 24, 16)
 
@@ -69,17 +69,17 @@ function Node({ node, dim, active }: { node: GraphNode; dim: boolean; active: bo
         onClick={onClick}
       >
         <meshBasicMaterial
-          color={NODE_COLOR[node.kind]}
+          color={nodeColor(node)}
           transparent
           opacity={dim ? 0.12 : 1}
           toneMapped={false}
         />
       </mesh>
       {/* soft halo so the brighter kinds glow against the dark */}
-      {!dim && (node.kind === 'studio' || node.kind === 'member' || active) && (
+      {!dim && (node.kind === 'studio' || node.kind === 'kou' || node.kind === 'member' || active) && (
         <mesh geometry={sphere} scale={scale * 1.8} raycast={() => null}>
           <meshBasicMaterial
-            color={NODE_COLOR[node.kind]}
+            color={nodeColor(node)}
             transparent
             opacity={0.06}
             depthWrite={false}

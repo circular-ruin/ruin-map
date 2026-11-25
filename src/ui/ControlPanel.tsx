@@ -4,7 +4,18 @@ import type { NodeKind } from '../data/graph'
 import { KIND_LABEL } from '../scene/palette'
 import { useMapStore, type CameraMode } from '../state/store'
 
-const TOGGLED_KINDS: NodeKind[] = ['film', 'software', 'person', 'company', 'musician', 'label']
+const TOGGLED_KINDS: NodeKind[] = [
+  'film',
+  'software',
+  'person',
+  'company',
+  'musician',
+  'label',
+  'release',
+  'artist',
+  'player',
+  'contributor',
+]
 
 /**
  * The leva panel, as in the orrery. Controls write into the zustand store

@@ -1,7 +1,8 @@
 import { useEffect, useMemo } from 'react'
 import * as THREE from 'three'
-import type { NodeKind } from '../data/graph'
-import { SHELL_RADIUS } from '../layout/layout'
+import { KOU_KINDS, type NodeKind } from '../data/graph'
+import { COHORTS } from '../data/kou'
+import { COHORT_RADIUS, KOU_CENTER, SHELL_RADIUS, type Vec3 } from '../layout/layout'
 import { useMapStore } from '../state/store'
 import { NODE_COLOR } from './palette'
 
@@ -32,7 +33,8 @@ export function Backdrop() {
   useEffect(() => () => stars.dispose(), [stars])
 
   const shells = (Object.entries(SHELL_RADIUS) as [NodeKind, number][]).filter(
-    ([kind, radius]) => radius > 0 && visible[kind],
+    // releases sit on cohort rings instead of one shell
+    ([kind, radius]) => radius > 0 && visible[kind] && kind !== 'release',
   )
 
   return (
@@ -41,13 +43,40 @@ export function Backdrop() {
         <pointsMaterial color="#d8ccb0" size={1.4} sizeAttenuation transparent opacity={0.55} depthWrite={false} />
       </points>
       {shells.map(([kind, radius]) => (
-        <ShellRing key={kind} radius={radius} color={NODE_COLOR[kind]} />
+        <ShellRing
+          key={kind}
+          radius={radius}
+          color={NODE_COLOR[kind]}
+          center={KOU_KINDS.has(kind) ? KOU_CENTER : ORIGIN}
+        />
       ))}
+      {visible.release &&
+        COHORTS.map((cohort) => (
+          <ShellRing
+            key={cohort.id}
+            radius={COHORT_RADIUS[cohort.id]}
+            color={cohort.color}
+            center={KOU_CENTER}
+            opacity={0.45}
+          />
+        ))}
     </>
   )
 }
 
-function ShellRing({ radius, color }: { radius: number; color: string }) {
+const ORIGIN: Vec3 = [0, 0, 0]
+
+function ShellRing({
+  radius,
+  color,
+  center,
+  opacity = 0.14,
+}: {
+  radius: number
+  color: string
+  center: Vec3
+  opacity?: number
+}) {
   const geometry = useMemo(() => {
     const points: THREE.Vector3[] = []
     const segments = 256
@@ -59,9 +88,11 @@ function ShellRing({ radius, color }: { radius: number; color: string }) {
   }, [radius])
   useEffect(() => () => geometry.dispose(), [geometry])
   return (
-    <line>
-      <primitive object={geometry} attach="geometry" />
-      <lineBasicMaterial color={color} transparent opacity={0.14} depthWrite={false} />
-    </line>
+    <group position={center}>
+      <line>
+        <primitive object={geometry} attach="geometry" />
+        <lineBasicMaterial color={color} transparent opacity={opacity} depthWrite={false} />
+      </line>
+    </group>
   )
 }

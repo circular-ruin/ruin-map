@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
 import { buildGraph, slug } from '../graph'
-import { layoutGraph, targetRadius } from '../../layout/layout'
+import { centerOf, layoutGraph, targetRadius } from '../../layout/layout'
 
 const graph = buildGraph()
 const ids = new Set(graph.nodes.map((node) => node.id))
@@ -25,6 +25,14 @@ describe('buildGraph', () => {
     expect(lopatin?.client).toBe(true)
   })
 
+  it('pulls Kou release artists into the label orbit', () => {
+    const lowe = graph.nodes.find((node) => node.id === slug('Robert Aiki Aubrey Lowe'))
+    expect(lowe?.kind).toBe('artist')
+    // still linked to his film score
+    expect(graph.edges.some((edge) => edge.source === lowe?.id && edge.target === 'candyman')).toBe(true)
+    expect(graph.nodes.find((node) => node.id === 'randall')?.kind).toBe('member')
+  })
+
   it('keeps team members out of the music roster', () => {
     expect(graph.nodes.filter((node) => node.name === 'Arjan Miranda')).toHaveLength(1)
   })
@@ -41,9 +49,10 @@ describe('layoutGraph', () => {
   it('places every node on its shell', () => {
     for (const node of graph.nodes) {
       const [x, y, z] = positions.get(node.id)!
+      const [cx, cy, cz] = centerOf(node)
       const r = targetRadius(node)
       // the shells are ellipsoids flattened to 0.75 vertically
-      expect(Math.hypot(x, y / 0.75, z)).toBeCloseTo(r, 3)
+      expect(Math.hypot(x - cx, (y - cy) / 0.75, z - cz)).toBeCloseTo(r, 3)
     }
   })
 

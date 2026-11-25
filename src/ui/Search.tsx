@@ -1,5 +1,5 @@
 import { useId, useMemo, useState } from 'react'
-import { KIND_LABEL, NODE_COLOR } from '../scene/palette'
+import { KIND_LABEL, nodeColor } from '../scene/palette'
 import { graph, useMapStore } from '../state/store'
 import styles from './Search.module.css'
 
@@ -82,7 +82,7 @@ export function Search() {
               }}
               onMouseEnter={() => setActive(i)}
             >
-              <span className={styles.dot} style={{ background: NODE_COLOR[node.kind] }} />
+              <span className={styles.dot} style={{ background: nodeColor(node) }} />
               <span className={styles.name}>{node.name}</span>
               <span className={styles.kind}>{KIND_LABEL[node.kind]}</span>
             </li>

@@ -7,6 +7,7 @@ import {
   MEMBERS,
   SOFTWARE,
 } from './credits'
+import { COHORTS, KOU_RELEASES, MASTERED_AT_CIRCULAR_RUIN, type CohortId, type CreditType } from './kou'
 import roster from './roster.json'
 
 export type NodeKind =
@@ -18,6 +19,16 @@ export type NodeKind =
   | 'company'
   | 'musician'
   | 'label'
+  | 'kou'
+  | 'release'
+  | 'artist'
+  | 'player'
+  | 'contributor'
+
+/** which center a node orbits */
+export type System = 'cr' | 'kou'
+
+export const KOU_KINDS = new Set<NodeKind>(['kou', 'release', 'artist', 'player', 'contributor'])
 
 export type EdgeKind =
   | 'studio'
@@ -30,6 +41,11 @@ export type EdgeKind =
   | 'music'
   | 'roster'
   | 'link'
+  | 'kou'
+  | 'release'
+  | 'performer'
+  | 'production'
+  | 'artwork'
 
 export interface GraphNode {
   id: string
@@ -43,6 +59,14 @@ export interface GraphNode {
   selected?: boolean
   /** on the circularruin.com client list */
   client?: boolean
+  /** Kou releases only */
+  cohort?: CohortId
+  /** runs Kou Records; sits on the label's innermost shell */
+  founder?: boolean
+}
+
+export function systemOf(node: GraphNode): System {
+  return KOU_KINDS.has(node.kind) ? 'kou' : 'cr'
 }
 
 export interface GraphEdge {
@@ -59,6 +83,18 @@ export interface Graph {
 }
 
 const STUDIO_ID = 'circular-ruin'
+const KOU_ID = 'kou-records'
+
+const CREDIT_EDGE: Record<CreditType, EdgeKind> = {
+  performer: 'performer',
+  production: 'production',
+  artwork: 'artwork',
+}
+const CREDIT_KIND: Record<CreditType, NodeKind> = {
+  performer: 'player',
+  production: 'contributor',
+  artwork: 'contributor',
+}
 
 export function slug(name: string): string {
   return name
@@ -178,6 +214,43 @@ export function buildGraph(): Graph {
     }
   }
 
+  // Kou Records: a second center, bound to the studio by shared people
+  nodes.set(KOU_ID, {
+    id: KOU_ID,
+    name: 'Kou Records',
+    kind: 'kou',
+    subtitle: 'Record label, New York',
+    note: 'A label devoted to artists who have built their own musical languages, run by Charmaine Lee with Randall Dunn. Records come out in cohorts; nearly all are produced by Randall Dunn and mastered by Ben Greenberg at Circular Ruin.',
+  })
+  link(KOU_ID, STUDIO_ID, 'kou', 'Records made at Circular Ruin')
+  link(upsert('Charmaine Lee', 'artist', { founder: true }), KOU_ID, 'kou', 'Founder; executive producer')
+  link('randall', KOU_ID, 'kou', 'Runs the label with Charmaine Lee; in-house producer')
+  link('ben', KOU_ID, 'kou', 'Mastering and Dolby Atmos mixes')
+
+  for (const release of KOU_RELEASES) {
+    const cohort = COHORTS.find((c) => c.id === release.cohort)!
+    const year = Number(release.released.slice(0, 4))
+    nodes.set(release.id, {
+      id: release.id,
+      name: release.title,
+      kind: 'release',
+      year,
+      cohort: release.cohort,
+      subtitle: `Kou Records, ${release.released}${release.catalog ? `, ${release.catalog}` : ''}`,
+      note: `${cohort.name}${cohort.vinyl ? `, pressed on ${cohort.vinyl} vinyl` : ''}.`,
+    })
+    link(release.id, KOU_ID, 'kou', cohort.name)
+    for (const artist of release.artists) {
+      link(upsert(artist.name, 'artist'), release.id, 'release', artist.role)
+    }
+    for (const credit of release.credits) {
+      link(upsert(credit.name, CREDIT_KIND[credit.type]), release.id, CREDIT_EDGE[credit.type], credit.role)
+    }
+    if (MASTERED_AT_CIRCULAR_RUIN.has(release.id)) {
+      link(release.id, STUDIO_ID, 'production', 'Mastered at Circular Ruin')
+    }
+  }
+
   for (const extra of EXTRA_LINKS) {
     link(upsert(extra.a, 'person'), upsert(extra.b, 'musician'), 'link', extra.role)
   }
@@ -191,10 +264,18 @@ const KIND_PRIORITY: Record<NodeKind, number> = {
   member: 1,
   film: 2,
   software: 3,
+  kou: 1.5,
+  release: 3.2,
+  // a Kou release artist joins the label's orbit even if the studio knows
+  // them from film work; players and crew stay where they already are
+  artist: 3.5,
   person: 4,
+  player: 4.6,
   company: 5,
   musician: 6,
+  contributor: 6.5,
   label: 7,
 }
 
 export const STUDIO = STUDIO_ID
+export const KOU = KOU_ID

@@ -94,7 +94,8 @@ export function Introduction() {
       <div className={styles.body}>
         <p className={styles.lede}>
           Every project Circular Ruin has touched, and everyone it connects, arranged as nested
-          spheres around the studio.
+          spheres around the studio. Beside it, in a binary orbit, sits Kou Records, the label
+          Charmaine Lee runs with Randall Dunn.
         </p>
 
         <h2 className={styles.heading}>The Shells</h2>
@@ -107,6 +108,21 @@ export function Introduction() {
           <li data-kind="company">{count('company')} production companies and distributors</li>
           <li data-kind="musician">{count('musician')} musicians and bands</li>
           <li data-kind="label">{count('label')} record labels</li>
+        </ul>
+
+        <h2 className={styles.heading}>Kou Records</h2>
+        <p>
+          The second sphere. Its {count('release')} releases sit on growth rings, one per cohort,
+          colored like the cohort's vinyl: Kou Orange, Mint Blue, and Gunmetal Grey. Beyond them
+          are the label's artists, the players on each record, and the artwork and engineering
+          crew. Nearly every record was produced by Randall Dunn and mastered by Ben Greenberg,
+          so the two systems are stitched together through the team.
+        </p>
+        <ul className={styles.legend}>
+          <li data-kind="kou">Kou Records and founder Charmaine Lee at the center</li>
+          <li data-kind="artist">{count('artist')} Kou artists</li>
+          <li data-kind="player">{count('player')} players on Kou records</li>
+          <li data-kind="contributor">{count('contributor')} artwork, design, and engineering credits</li>
         </ul>
         <p>
           Lines are credits. Orange lines are the team's own work on a project; pink lines are
@@ -123,7 +139,8 @@ export function Introduction() {
 
         <p className={styles.hint}>
           Built from circularruin.com and the team's credits, with directors, cast, and composers
-          checked against public film databases. Missing credits are left out, not guessed.
+          checked against public film databases. Kou credits come from each release's Bandcamp
+          page. Missing credits are left out, not guessed.
         </p>
       </div>
     </section>

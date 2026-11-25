@@ -146,6 +146,10 @@
 .legend li[data-kind='company']::before { background: #c79be0; }
 .legend li[data-kind='musician']::before { background: #8fd18b; }
 .legend li[data-kind='label']::before { background: #6f9c86; }
+.legend li[data-kind='kou']::before { background: #ff5c8a; }
+.legend li[data-kind='artist']::before { background: #ffa3c4; }
+.legend li[data-kind='player']::before { background: #d98fb6; }
+.legend li[data-kind='contributor']::before { background: #a67c93; }
 
 .connections {
   margin: 0;
