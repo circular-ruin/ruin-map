@@ -37,6 +37,12 @@ as the commit on `main`, and `lint-pr-title` checks the format. Types, scopes,
 and breaking changes are in
 [commit-conventions.md](https://github.com/circular-ruin/docs/blob/main/commit-conventions.md).
 
+## Writing style
+
+Use the serial (Oxford) comma in everything written in this repo: UI copy,
+docs, code comments, commit messages, and PR descriptions. The full rules are
+in [`circular-ruin/docs` → copy-style.md](https://github.com/circular-ruin/docs/blob/main/copy-style.md).
+
 ## Cross-product docs
 
 Shared engineering and ops docs for Circular Ruin (signing, release pipelines,
@@ -75,3 +81,7 @@ local copy, read single files with
 - Don't edit the docs as a side effect of work here. If a doc is wrong or
   missing something, tell the user. Fixes go through a PR to
   `circular-ruin/docs`.
+
+## Agent instructions file
+
+`AGENTS.md` is a symlink to this file, so every coding agent reads the same instructions. Edit `CLAUDE.md`, never the symlink.
