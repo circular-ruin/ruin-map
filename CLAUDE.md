@@ -28,3 +28,11 @@ TypeScript, react-three-fiber 9, drei 10, leva, zustand, vitest. Modeled on
   React root each, which floods React warnings when hover changes the set.
 - Never guess credits. Add a field only when a source confirms it.
 - Dev console handle: `window.ruinMap = { camera, positions, store }`.
+
+## Commits and pull requests
+
+PR titles are Conventional Commits with a lowercase subject, for example
+`fix: keep the label inside its bounds`. PRs are squash-merged with the title
+as the commit on `main`, and `lint-pr-title` checks the format. Types, scopes,
+and breaking changes are in
+[commit-conventions.md](https://github.com/circular-ruin/docs/blob/main/commit-conventions.md).
